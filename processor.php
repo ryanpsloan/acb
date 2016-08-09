@@ -1,23 +1,5 @@
 <?php
-/**********************************************************************************************************************
-Author: Ryan Sloan
-This process will read a F657 GL .txt file from LCDN and sort the data and analyze the credits and debits and whether or not
-they balance and output the total and whether or not the balance to a web page
-ryan@paydayinc.com
- *********************************************************************************************************************/
-/**
-Data Example:
 
-Index: 0            1        2          3        4   5-num   6   7    8-DB   9-CR      10-name
-PR061015 WK# 24, 99982473, ER WCA,   6/11/2015, 6508, 200,  20,  60,  2.3,       0, AGNES L OLSEN
-PR061015 WK# 24, 99982473, NM-SUI,   6/11/2015, 6510, 200,  20,  60, 5.47,       0, AGNES L OLSEN
-PR061015 WK# 24, 99982499, NETPAY,   6/11/2015, 1030, 100,   0,   0,    0,  483.07, AMANDA  JARAMILLO
-PR061015 WK# 24, 99982499, OASDI,    6/11/2015, 2210, 100,   0,   0,    0,   44.27, AMANDA  JARAMILLO
-PR061015 WK# 24, 99982499, ER OASDI, 6/11/2015, 2210, 100,   0,   0,    0,   44.27, AMANDA  JARAMILLO
-PR061015 WK# 24, 99982499, MEDICARE, 6/11/2015, 2220, 100,   0,   0,    0,   10.35, AMANDA  JARAMILLO
-
- *
- **/
 
 session_start();
 if(isset($_FILES)) { //Check to see if a file is uploaded
