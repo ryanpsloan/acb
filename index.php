@@ -8,37 +8,36 @@ After upload the form action sends the file data to processor.php
 ryan@paydayinc.com
  *********************************************************************************************************************/
 
-if(isset($_SESSION['data'])) {
-    $output = $_SESSION['data'];
-    $date = $_SESSION['date'];
-    $createDoc = "<a href='createDoc.php' class='balanceDoc' target='_blank'>Balance Document</a>";
-    $clear = '<a href="clear.php" class="link">Clear File</a>';
-    $results = "<a href='results.php' target='_blank'>Analysis</a>";
-
+if(isset($_SESSION['creditFileName'])){
+    $downloadCredit = '<a href="downloadCredit.php">Download Credit File</a>';
+    $clear = '<a href="clear.php">Clear Files</a>';
 }
 else{
-    $output = null;
-    $date = null;
-    $createDoc = "";
+    $downloadCredit = "";
     $clear = "";
-    $results = "";
-
 }
 
-if(isset($_SESSION['fileName'])){
-    $link = "<a href='createDoc.php' target='_blank'>Results</a>";
-    $download = '<a href="download.php">Download File</a>';
+if(isset($_SESSION['debitFileName'])){
+    $downloadDebit = '<a href="downloadDebit.php">Download Debit File</a>';
+    $clear = '<a href="clear.php">Clear Files</a>';
 }
 else{
-    $link = "";
-    $download = "";
+    $downloadDebit = "";
+    $clear = "";
+}
+
+if(isset($_SESSION['exceptionsFileName'])){
+    $downloadExceptions = '<a href="downloadExceptions.php">Download Exceptions File</a>';
+
+}else{
+    $downloadExceptions = '';
 }
 
 ?>
 <!DOCTYPE>
 <html>
 <head>
-    <title>LCDN GL Balancer</title>
+    <title>ACB File Creator</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
@@ -145,12 +144,9 @@ else{
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li><?php echo $results; ?></li>
-                    <li><?php echo $clear; ?></li>
-                    <li><?php echo $createDoc; ?></li>
-                    <li><?php echo $download; ?></li>
-                    <li><?php echo $link; ?></li>
-
+                    <li><?php echo $downloadCredit; ?></li>
+                    <li><?php echo $downloadDebit; ?></li>
+                    <li><?php echo $downloadExceptions; ?></li>
 
                 </ul>
 
@@ -168,7 +164,7 @@ else{
                 <table>
                     <tr><th><h2>ACB File Converter</h2></th></tr>
                     <tr><th>Instructions:</th></tr>
-                    <tr><td>1. </td></tr>
+                    <tr><td>1.  </td></tr>
                     <tr><td>2. </td></tr>
                     <tr><td>3. </td></tr>
                 </table>
@@ -182,14 +178,11 @@ else{
                         <table>
                             <tr><td id="header"><label for="file">Upload unsorted .txt</label></td></tr>
                             <tr><td><input type="file" id="file" name="file"></td></tr>
-                            <tr><td><input type="submit" value="Analyze" class="button"></td></tr>
-                            <tr><td></td></tr>
-                            <tr><td></td></tr>
-                            <tr><td><?php echo $results; ?></td></tr>
-                            <tr><td><?php echo $createDoc; ?></td></tr>
-                            <tr><td><?php echo $download; ?></td></tr>
-                            <tr><td><?php echo $link; ?></td></tr>
-                            <tr><td><?php echo $clear; ?></td></tr>
+                            <tr><td><input type="submit" value="Create Files" class="button"></td></tr>
+                            <tr><td><?php echo $clear;?></td></tr>
+
+                            <tr><td><?php if(isset($_SESSION['output'])){echo $_SESSION['output'];} ?></td></tr>
+
                         </table>
 
                     </form>

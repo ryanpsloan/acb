@@ -122,12 +122,12 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         foreach($data as $key => $line){
 
             if(count($line) < 7){
-               var_dump($key);
+               //var_dump($key);
                array_splice($data,$key,1);
             }
         }
 
-        var_dump("DATA", $data, "DATAEND");
+        //var_dump("DATA", $data, "DATAEND");
 
         //sort into credits and debits
         $credits = $debits = array();
@@ -144,7 +144,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
 
         }
 
-        var_dump("CREDITS", $credits, "DEBITS", $debits);
+        //var_dump("CREDITS", $credits, "DEBITS", $debits);
 
         //sort arrays in decending order
         $creditArr = array();
@@ -162,18 +162,24 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
 
         array_multisort($debitArr, SORT_DESC, $debits);
 
-        var_dump("CREDITS1", $credits, "DEBITS1", $debits);
-
+        //var_dump("CREDITS1", $credits, "DEBITS1", $debits);
+        $exceptions = array();
         //replace the codes
         foreach($credits as $key => $line){
             if($line[3] === '142'){
                 $credits[$key][3] = '165';
+            }else{
+                $exceptions[] = $line;
+                unset($line);
             }
         }
 
         foreach($debits as $key => $line){
             if($line[3] === '451'){
                 $debits[$key][3] = '455';
+            }else{
+                $exceptions[] = $line;
+                unset($line);
             }
         }
 
@@ -194,20 +200,21 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
             }
         }
 
-        var_dump("CREDITS2", $credits, "DEBITS2", $debits);
+        //var_dump("CREDITS2", $credits, "DEBITS2", $debits);
 
         //cut out the client number
+
         foreach($credits as $key => $line){
-            $var = explode(' ', $line[5]);
+            $var = preg_split('/[\s*]/', $line[5]);
             $credits[$key][5] = str_pad('', 19) . $var[0];
         }
 
         foreach($debits as $key => $line){
-            $var = explode(' ', $line[5]);
+            $var = preg_split('/[\s*]/', $line[5]);
             $debits[$key][5] = str_pad('', 19) . $var[0];
         }
 
-        var_dump("CREDITS3", $credits, "DEBITS3", $debits);
+        //var_dump("CREDITS3", $credits, "DEBITS3", $debits);
 
 
         //set string length of values
@@ -219,15 +226,61 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
             $debits[$key][2] = str_pad($line[2], 19);
         }
 
-        var_dump("CREDITS4", $credits, "DEBITS4", $debits);
-
+        //var_dump("CREDITS4", $credits, "DEBITS4", $debits);
 
         $creditFileLines = $debitFileLines = array();
 
         foreach($credits as $key => $line){
             $creditFileLines[] = array('"'.$year.$month.$day.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[1].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
         }
-        var_dump("CREDITFILELINES", $creditFileLines);
+        //var_dump("CREDITFILELINES", $creditFileLines);
+
+        foreach($debits as $key => $line){
+            $debitFileLines[] = array('"'.$year.$month.$day.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[2].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
+        }
+        //var_dump("DEBITFILELINES", $debitFileLines);
+
+        $month = $today->format("m");
+        $day = $today->format('d');
+        $year = $today->format('y');
+        $time = $today->format('H-i-s');
+
+        $debitFileName = "ACBFiles/ACB_Processed_File_Debit_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
+        $handle = fopen($debitFileName, 'wb');
+
+        $quoteCSV = function($field){
+            return '"'.$field.'"';
+        };
+
+        foreach($debitFileLines as $line) {
+            fputs($handle, implode(',',$line)."\n");
+        }
+        fclose($handle);
+
+        $_SESSION['output'] = "Successfully created Debit File.";
+        $_SESSION['debitFileName'] = $debitFileName;
+
+        $creditFileName = "ACBFiles/ACB_Processed_File_Credit_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
+        $handle = fopen($creditFileName, 'wb');
+
+        foreach($creditFileLines as $line) {
+            fputs($handle, implode(',',$line)."\n");
+        }
+        fclose($handle);
+
+        $_SESSION['output'] .= "<br>Successfully created Credit File.";
+        $_SESSION['creditFileName'] = $creditFileName;
+
+        $exceptionsFileName = "ACBFiles/ACB_Processed_File_Exceptions_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
+        $handle = fopen($exceptionsFileName, 'wb');
+
+        foreach($exceptions as $line) {
+            fputs($handle, implode(',',$line)."\n");
+        }
+        fclose($handle);
+        $_SESSION['output'] .= "<br>Successfully created Exceptions File.";
+        $_SESSION['exceptionsFileName'] = $exceptionsFileName;
+
         //return to index.php
         header("Location: index.php");
 
