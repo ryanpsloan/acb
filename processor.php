@@ -270,7 +270,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         }
         fclose($handle);
 
-        $_SESSION['output'] .= "<br>Successfully created Credit File.";
+        $_SESSION['output'] = "Successfully created Credit File.";
         $_SESSION['creditFileName'] = $creditFileName;
 
         $debitFileName = "ACBFiles/ACB_Processed_File_Debit_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
@@ -285,7 +285,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         }
         fclose($handle);
 
-        $_SESSION['output'] = "Successfully created Debit File.";
+        $_SESSION['output'] .= "<br>Successfully created Debit File.";
         $_SESSION['debitFileName'] = $debitFileName;
 
         $checkFileName = "ACBFiles/ACB_Processed_File_Checks_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
@@ -297,12 +297,12 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         fclose($handle);
 
         $_SESSION['output'] .= "<br>Successfully created Check File.";
-        $_SESSION['chekcFileName'] = $checkFileName;
+        $_SESSION['checkFileName'] = $checkFileName;
 
         $exceptionsFileName = "ACBFiles/ACB_Processed_File_Exceptions_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
         $handle = fopen($exceptionsFileName, 'wb');
 
-        foreach($exceptionFileLines as $line) {
+        foreach($exceptions as $line) {
             fputs($handle, implode(',',$line)."\n");
         }
         fclose($handle);

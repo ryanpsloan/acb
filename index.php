@@ -26,6 +26,14 @@ else{
     $clear = "";
 }
 
+if(isset($_SESSION['checkFileName'])){
+    $downloadChecks = '<a href="downloadChecks.php">Download Checks File</a>';
+
+}else{
+    $downloadChecks = "";
+}
+
+
 if(isset($_SESSION['exceptionsFileName'])){
     $downloadExceptions = '<a href="downloadExceptions.php">Download Exceptions File</a>';
 
@@ -146,6 +154,7 @@ if(isset($_SESSION['exceptionsFileName'])){
                 <ul class="nav navbar-nav">
                     <li><?php echo $downloadCredit; ?></li>
                     <li><?php echo $downloadDebit; ?></li>
+                    <li><?php echo $downloadChecks; ?></li>
                     <li><?php echo $downloadExceptions; ?></li>
 
                 </ul>
