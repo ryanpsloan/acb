@@ -164,9 +164,9 @@ if(isset($_SESSION['exceptionsFileName'])){
                 <table>
                     <tr><th><h2>ACB File Converter</h2></th></tr>
                     <tr><th>Instructions:</th></tr>
-                    <tr><td>1.  </td></tr>
-                    <tr><td>2. </td></tr>
-                    <tr><td>3. </td></tr>
+                    <tr><td>1. Run file from ACB website. Columns to select: Date,Credit Amount, Debit Amount, Code, x2ndReference, and Memo </td></tr>
+                    <tr><td>2. Upload file and click Create Files</td></tr>
+                    <tr><td>3. Download Formatted Credit and Debit Files</td></tr>
                 </table>
 
             </div>
@@ -191,7 +191,7 @@ if(isset($_SESSION['exceptionsFileName'])){
             </div>
         </div>
 
-        <hr>
+
 
     </div>
 </main>

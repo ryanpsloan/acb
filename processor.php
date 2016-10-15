@@ -115,7 +115,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         //close file reading stream
         fclose($handle);
 
-        //var_dump($fileData);
+        //var_dump('FILEDATA',$fileData,'END FILEDATA');
 
         //remove empty lines
         $data = $fileData;
@@ -170,7 +170,8 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
                 $credits[$key][3] = '165';
             }else{
                 $exceptions[] = $line;
-                unset($line);
+                unset($credits[$key]);
+                //array_splice($credits, $key, 1);
             }
         }
 
@@ -179,25 +180,37 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
                 $debits[$key][3] = '455';
             }else{
                 $exceptions[] = $line;
-                unset($line);
+                unset($debits[$key]);
+                //array_splice($debits, $key, 1);
             }
         }
 
+        $checks = array();
+        foreach($exceptions as $key => $line){
+            if($line[3] === '475'){
+                $checks[] = $line;
+                unset($exceptions[$key]);
+            }
+        }
+
+        //var_dump($debits);
         //set 2ndReference column
         foreach($credits as $key => $line){
-            if($line[4] === ''){
+            /*if($line[4] === ''){
                 $credits[$key][4] = '000000000000';
             }else{
                 $credits[$key][4] = '000000005133';
-            }
+            }*/
+            $credits[$key][4] = '000000000000';
         }
 
         foreach($debits as $key => $line){
-            if($line[4] === ''){
+            /*if($line[4] === ''){
                 $debits[$key][4] = '000000000000';
             }else{
                 $debits[$key][4] = '000000005133';
-            }
+            }*/
+            $debits[$key][4] = '000000000000';
         }
 
         //var_dump("CREDITS2", $credits, "DEBITS2", $debits);
@@ -228,7 +241,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
 
         //var_dump("CREDITS4", $credits, "DEBITS4", $debits);
 
-        $creditFileLines = $debitFileLines = array();
+        $creditFileLines = $debitFileLines = $checkFileLines = array();
 
         foreach($credits as $key => $line){
             $creditFileLines[] = array('"'.$year.$month.$day.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[1].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
@@ -238,12 +251,27 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         foreach($debits as $key => $line){
             $debitFileLines[] = array('"'.$year.$month.$day.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[2].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
         }
+
+        foreach($checks as $key => $line){
+            $checkFileLines[] = array('"'.$year.$month.$day.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[2].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
+        }
         //var_dump("DEBITFILELINES", $debitFileLines);
 
         $month = $today->format("m");
         $day = $today->format('d');
         $year = $today->format('y');
         $time = $today->format('H-i-s');
+
+        $creditFileName = "ACBFiles/ACB_Processed_File_Credit_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
+        $handle = fopen($creditFileName, 'wb');
+
+        foreach($creditFileLines as $line) {
+            fputs($handle, implode(',',$line)."\n");
+        }
+        fclose($handle);
+
+        $_SESSION['output'] .= "<br>Successfully created Credit File.";
+        $_SESSION['creditFileName'] = $creditFileName;
 
         $debitFileName = "ACBFiles/ACB_Processed_File_Debit_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
         $handle = fopen($debitFileName, 'wb');
@@ -260,21 +288,21 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         $_SESSION['output'] = "Successfully created Debit File.";
         $_SESSION['debitFileName'] = $debitFileName;
 
-        $creditFileName = "ACBFiles/ACB_Processed_File_Credit_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
-        $handle = fopen($creditFileName, 'wb');
+        $checkFileName = "ACBFiles/ACB_Processed_File_Checks_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
+        $handle = fopen($checkFileName, 'wb');
 
-        foreach($creditFileLines as $line) {
+        foreach($checkFileLines as $line) {
             fputs($handle, implode(',',$line)."\n");
         }
         fclose($handle);
 
-        $_SESSION['output'] .= "<br>Successfully created Credit File.";
-        $_SESSION['creditFileName'] = $creditFileName;
+        $_SESSION['output'] .= "<br>Successfully created Check File.";
+        $_SESSION['chekcFileName'] = $checkFileName;
 
         $exceptionsFileName = "ACBFiles/ACB_Processed_File_Exceptions_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
         $handle = fopen($exceptionsFileName, 'wb');
 
-        foreach($exceptions as $line) {
+        foreach($exceptionFileLines as $line) {
             fputs($handle, implode(',',$line)."\n");
         }
         fclose($handle);
@@ -291,7 +319,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
 
     } catch (Exception $e) {
         echo $e->getMessage();
-        //header('Location: index.php?');
+        header('Location: index.php?');
     }
 }else{
     header('Location: index.php?output=<p>No File Was Selected</p>');
