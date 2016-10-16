@@ -244,16 +244,22 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         $creditFileLines = $debitFileLines = $checkFileLines = array();
 
         foreach($credits as $key => $line){
-            $creditFileLines[] = array('"'.$year.$month.$day.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[1].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
+            $date = new DateTime($line[0]);
+            $finalDate = $date->format('Ymd');
+            $creditFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[1].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
         }
         //var_dump("CREDITFILELINES", $creditFileLines);
 
         foreach($debits as $key => $line){
-            $debitFileLines[] = array('"'.$year.$month.$day.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[2].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
+            $date = new DateTime($line[0]);
+            $finalDate = $date->format('Ymd');
+            $debitFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[2].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
         }
 
         foreach($checks as $key => $line){
-            $checkFileLines[] = array('"'.$year.$month.$day.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[2].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
+            $date = new DateTime($line[0]);
+            $finalDate = $date->format('Ymd');
+            $checkFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[2].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
         }
         //var_dump("DEBITFILELINES", $debitFileLines);
 
