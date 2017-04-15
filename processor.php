@@ -103,7 +103,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
 
 
         //remove the header
-        fgets($handle);
+        $headerLine = fgets($handle);
 
         //read the data in line by line
         while (!feof($handle)) {
@@ -121,7 +121,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         $data = $fileData;
         foreach($data as $key => $line){
 
-            if(count($line) < 7){
+            if(count($line) < 9){
                //var_dump($key);
                array_splice($data,$key,1);
             }
@@ -134,7 +134,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
 
 
         foreach($data as $line){
-            if($line[1] !== ''){
+            if($line[3] !== '0'){
 
                 $credits[] = $line;
             }else{
@@ -150,14 +150,14 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         $creditArr = array();
 
         foreach($credits as $value ){
-            $creditArr[] = $value[1];
+            $creditArr[] = $value[3];
         }
         array_multisort($creditArr, SORT_DESC, $credits);
 
         $debitArr = array();
 
         foreach($debits as $value ){
-            $debitArr[] = $value[2];
+            $debitArr[] = $value[4];
         }
 
         array_multisort($debitArr, SORT_DESC, $debits);
@@ -166,8 +166,9 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         $exceptions = array();
         //replace the codes
         foreach($credits as $key => $line){
-            if($line[3] === '142'){
-                $credits[$key][3] = '165';
+            //var_dump($line[5] === '"142"');
+            if($line[5] === '"142"'){
+                $credits[$key][5] = '165';
             }else{
                 $exceptions[] = $line;
                 unset($credits[$key]);
@@ -176,8 +177,9 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         }
 
         foreach($debits as $key => $line){
-            if($line[3] === '451'){
-                $debits[$key][3] = '455';
+
+            if($line[5] === '"451"'){
+                $debits[$key][5] = '455';
             }else{
                 $exceptions[] = $line;
                 unset($debits[$key]);
@@ -187,7 +189,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
 
         $checks = array();
         foreach($exceptions as $key => $line){
-            if($line[3] === '475'){
+            if($line[5] === '"475"'){
                 $checks[] = $line;
                 unset($exceptions[$key]);
             }
@@ -201,7 +203,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
             }else{
                 $credits[$key][4] = '000000005133';
             }*/
-            $credits[$key][4] = '000000000000';
+            $credits[$key][7] = '000000000000';
         }
 
         foreach($debits as $key => $line){
@@ -210,7 +212,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
             }else{
                 $debits[$key][4] = '000000005133';
             }*/
-            $debits[$key][4] = '000000000000';
+            $debits[$key][7] = '000000000000';
         }
 
         //var_dump("CREDITS2", $credits, "DEBITS2", $debits);
@@ -218,13 +220,17 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         //cut out the client number
 
         foreach($credits as $key => $line){
-            $var = preg_split('/[\s*]/', $line[5]);
-            $credits[$key][5] = str_pad('', 19) . $var[0];
+            $var = preg_split('/[\s*]/', $line[8]);
+            $credits[$key][8] = str_pad('', 19) . preg_replace("/\"/", "", $var[0]);
         }
 
         foreach($debits as $key => $line){
-            $var = preg_split('/[\s*]/', $line[5]);
-            $debits[$key][5] = str_pad('', 19) . $var[0];
+            $var = preg_split('/[\s*]/', $line[8]);
+            if($var[0] === '"IRS' || $var[0] === '"STATE' || $var[0] === '"TAX_REV_CRS_ECKS'){
+                $debits[$key][8] = preg_replace("/\"/", "", $line[8]);
+            }else {
+                $debits[$key][8] = str_pad('', 19) . preg_replace("/\"/", "", $var[0]);
+            }
         }
 
         //var_dump("CREDITS3", $credits, "DEBITS3", $debits);
@@ -232,11 +238,11 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
 
         //set string length of values
         foreach($credits as $key => $line){
-            $credits[$key][1] = str_pad($line[1], 19);
+            $credits[$key][3] = str_pad($line[3], 19);
         }
 
         foreach($debits as $key => $line){
-            $debits[$key][2] = str_pad($line[2], 19);
+            $debits[$key][4] = str_pad($line[4], 19);
         }
 
         //var_dump("CREDITS4", $credits, "DEBITS4", $debits);
@@ -244,22 +250,22 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         $creditFileLines = $debitFileLines = $checkFileLines = array();
 
         foreach($credits as $key => $line){
-            $date = new DateTime($line[0]);
+            $date = new DateTime(preg_replace("/\"/", "", $line[2]));
             $finalDate = $date->format('Ymd');
-            $creditFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[1].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
+            $creditFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.$line[5].'"','""','"'.$line[3].'"','""','"'.$line[7].'"','"'.$line[8].'"','""');
         }
         //var_dump("CREDITFILELINES", $creditFileLines);
 
         foreach($debits as $key => $line){
-            $date = new DateTime($line[0]);
+            $date = new DateTime(preg_replace("/\"/", "", $line[2]));
             $finalDate = $date->format('Ymd');
-            $debitFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[2].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
+            $debitFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.$line[5].'"','""','"'.$line[4].'"','""','"'.$line[7].'"','"'.$line[8].'"','""');
         }
 
         foreach($checks as $key => $line){
-            $date = new DateTime($line[0]);
+            $date = new DateTime(preg_replace("/\"/", "", $line[2]));
             $finalDate = $date->format('Ymd');
-            $checkFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.$line[3].'"','""','"'.$line[2].'"','""','"'.$line[4].'"','"'.$line[5].'"','""');
+            $checkFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.$line[5].'"','""','"'.$line[4].'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
         }
         //var_dump("DEBITFILELINES", $debitFileLines);
 
@@ -307,7 +313,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
 
         $exceptionsFileName = "ACBFiles/ACB_Processed_File_Exceptions_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
         $handle = fopen($exceptionsFileName, 'wb');
-
+        fputs($handle,$headerLine);
         foreach($exceptions as $line) {
             fputs($handle, implode(',',$line)."\n");
         }
