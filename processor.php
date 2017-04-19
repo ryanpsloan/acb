@@ -227,7 +227,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         foreach($debits as $key => $line){
             $var = preg_split('/[\s*]/', $line[8]);
             if($var[0] === '"IRS' || $var[0] === '"STATE' || $var[0] === '"TAX_REV_CRS_ECKS'){
-                $debits[$key][8] = preg_replace("/\"/", "", $line[8]);
+                $debits[$key][8] = str_pad('', 19) . preg_replace("/\"/", "", $line[8]);
             }else {
                 $debits[$key][8] = str_pad('', 19) . preg_replace("/\"/", "", $var[0]);
             }
@@ -265,7 +265,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         foreach($checks as $key => $line){
             $date = new DateTime(preg_replace("/\"/", "", $line[2]));
             $finalDate = $date->format('Ymd');
-            $checkFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.$line[5].'"','""','"'.$line[4].'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
+            $checkFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.preg_replace("/\"/", "", $line[5]).'"','""','"'.$line[4].'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
         }
         //var_dump("DEBITFILELINES", $debitFileLines);
 
