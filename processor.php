@@ -78,7 +78,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         $year = $today->format('Y');
         $time = $today->format('H-i-s');
 
-        $newName = "$directory/lcdnData-$month-$day-$year-$time.$extension";
+        $newName = "$directory/acbFile-$month-$day-$year-$time.$extension";
         if ((rename("$directory/$name", $newName))) {
             fwrite($log, "File Renamed to: $newName" . PHP_EOL);
             //echo "<p>File Renamed to: $newName </p>";
