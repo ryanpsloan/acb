@@ -290,8 +290,16 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         foreach($isolvedArr as $key => $line){
             $date = new DateTime(preg_replace("/\"/", "", $line[2]));
             $finalDate = $date->format('Ymd');
-            $isolvedFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.preg_replace("/\"/", "", $line[5]).'"','""','"'.$line[4].'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
+            $var = explode(" ", $line[6]);
+            if(in_array('Credit', $var)){
+                $isolvedFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.preg_replace("/\"/", "", $line[5]).'"','""','"'.$line[3].'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
+            }else if(in_array('Debit', $var)){
+                $isolvedFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.preg_replace("/\"/", "", $line[5]).'"','""','"'.$line[4].'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
+            }
+
         }
+
+        //var_dump($isolvedFileLines);
 
         $month = $today->format("m");
         $day = $today->format('d');
