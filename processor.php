@@ -348,7 +348,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         $isolvedFileName = "ACBFiles/ACB_Processed_File_iSolved_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
         $handle = fopen($isolvedFileName, 'wb');
         //fputs($handle,$headerLine);
-        foreach($exceptions as $line) {
+        foreach($isolvedFileLines as $line) {
             fputs($handle, implode(',',$line)."\n");
         }
         fclose($handle);
