@@ -41,6 +41,13 @@ if(isset($_SESSION['exceptionsFileName'])){
     $downloadExceptions = '';
 }
 
+if(isset($_SESSION['isolvedFileName'])){
+    $downloadIsolved = '<a href="downloadISolved.php">Download iSolved File</a>';
+
+}else{
+    $downloadIsolved = '';
+}
+
 ?>
 <!DOCTYPE>
 <html>
@@ -156,6 +163,7 @@ if(isset($_SESSION['exceptionsFileName'])){
                     <li><?php echo $downloadDebit; ?></li>
                     <li><?php echo $downloadChecks; ?></li>
                     <li><?php echo $downloadExceptions; ?></li>
+                    <li><?php echo $downloadIsolved; ?></li>
 
                 </ul>
 

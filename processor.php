@@ -217,24 +217,34 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
 
         //var_dump("CREDITS2", $credits, "DEBITS2", $debits);
 
-        //cut out the client number
-
+        //cut out the client number and separate out isolved rows
+        $isolvedArr = array();
         foreach($credits as $key => $line){
             $var = preg_split('/[\s*]/', $line[8]);
-            $credits[$key][8] = str_pad('', 19) . preg_replace("/\"/", "", $var[0]);
+            if(in_array('Payroll', $var) || in_array('SUPP', $var)){
+                $isolvedArr[] = $line;
+                unset($credits[$key]);
+            }else {
+                $credits[$key][8] = str_pad('', 19) . preg_replace("/\"/", "", $var[0]);
+            }
         }
 
         foreach($debits as $key => $line){
             $var = preg_split('/[\s*]/', $line[8]);
-            if($var[0] === '"IRS'){
-                $debits[$key][8] = str_pad('', 19) . preg_replace("/\"/", "", $line[8]);
+            if(in_array('Payroll', $var) || in_array('SUPP', $var)){
+                $isolvedArr[] = $line;
+                unset($debits[$key]);
             }else {
-                $debits[$key][8] = str_pad('', 19) . preg_replace("/\"/", "", $var[0]);
+                if ($var[0] === '"IRS') {
+                    $debits[$key][8] = str_pad('', 19) . preg_replace("/\"/", "", $line[8]);
+                } else {
+                    $debits[$key][8] = str_pad('', 19) . preg_replace("/\"/", "", $var[0]);
+                }
             }
         }
 
         //var_dump("CREDITS3", $credits, "DEBITS3", $debits);
-
+        //var_dump('ISOLVED', $isolvedArr, 'ISOLVED END');
 
         //set string length of values
         foreach($credits as $key => $line){
@@ -268,6 +278,20 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
             $checkFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.preg_replace("/\"/", "", $line[5]).'"','""','"'.$line[4].'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
         }
         //var_dump("DEBITFILELINES", $debitFileLines);
+
+        //process isolved file
+        foreach($isolvedArr as $key => $line){
+            $var = preg_split('/[\s*]/', $line[8]);
+            $isolvedArr[$key][8] = $var[count($var)-1];
+        }
+        //var_dump('ISOLVED2', $isolvedArr, 'ISOLVED2 END');
+
+        $isolvedFileLines = array();
+        foreach($isolvedArr as $key => $line){
+            $date = new DateTime(preg_replace("/\"/", "", $line[2]));
+            $finalDate = $date->format('Ymd');
+            $isolvedFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.preg_replace("/\"/", "", $line[5]).'"','""','"'.$line[4].'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
+        }
 
         $month = $today->format("m");
         $day = $today->format('d');
@@ -321,6 +345,15 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         $_SESSION['output'] .= "<br>Successfully created Exceptions File.";
         $_SESSION['exceptionsFileName'] = $exceptionsFileName;
 
+        $isolvedFileName = "ACBFiles/ACB_Processed_File_iSolved_" .$month . "-" . $day . "-" . $year . "-" . $time . ".csv";
+        $handle = fopen($isolvedFileName, 'wb');
+        //fputs($handle,$headerLine);
+        foreach($exceptions as $line) {
+            fputs($handle, implode(',',$line)."\n");
+        }
+        fclose($handle);
+        $_SESSION['output'] .= "<br>Successfully created iSolved File.";
+        $_SESSION['isolvedFileName'] = $isolvedFileName;
         //return to index.php
         header("Location: index.php");
 
