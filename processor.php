@@ -282,7 +282,7 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
         //process isolved file
         foreach($isolvedArr as $key => $line){
             $var = preg_split('/[\s*]/', $line[8]);
-            $isolvedArr[$key][8] = $var[count($var)-1];
+            $isolvedArr[$key][8] = str_pad('', 19) . preg_replace("/\"/", "", $var[count($var)-1]);
         }
         //var_dump('ISOLVED2', $isolvedArr, 'ISOLVED2 END');
 
@@ -292,9 +292,9 @@ if(isset($_FILES)) { //Check to see if a file is uploaded
             $finalDate = $date->format('Ymd');
             $var = explode(" ", $line[6]);
             if(in_array('Credit', $var)){
-                $isolvedFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.preg_replace("/\"/", "", $line[5]).'"','""','"'.$line[3].'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
+                $isolvedFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.preg_replace("/\"/", "", $line[5]).'"','""','"'.str_pad($line[3], 19).'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
             }else if(in_array('Debit', $var)){
-                $isolvedFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.preg_replace("/\"/", "", $line[5]).'"','""','"'.$line[4].'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
+                $isolvedFileLines[] = array('"'.$finalDate.'"','""','""','""','""','"'.preg_replace("/\"/", "", $line[5]).'"','""','"'.str_pad($line[4], 19).'"','""','"'.preg_replace("/\"/", "", $line[7]).'"','"'.preg_replace("/\"/","",$line[8]).'"','""');
             }
 
         }
